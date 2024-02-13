@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
 
-from datetime import datetime, timedelta
-
-def create_icalendar_file(salle, horaires):
+def create_icalendar_file(salle, horaires, summaries=None):
     # Remplacez les caractères invalides dans le nom de la salle
     salle_cleaned = salle.replace('/', '').replace('*', '').replace(' ', '_')
     
@@ -12,7 +10,9 @@ PRODID:-//ADE/version 6.0
 VERSION:2.0
 CALSCALE:GREGORIAN\n"""
 
-    for horaire in horaires:
+    summaries = summaries or ["Occupation"] * len(horaires)  # Utilise "Occupation" si aucune liste de summaries n'est fournie
+    
+    for horaire, summary in zip(horaires, summaries):
         dtstart = horaire[0]
         dtend = horaire[1]
         
@@ -20,7 +20,7 @@ CALSCALE:GREGORIAN\n"""
 DTSTAMP:{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
 DTSTART:{dtstart.strftime('%Y%m%dT%H%M%SZ')}
 DTEND:{dtend.strftime('%Y%m%dT%H%M%SZ')}
-SUMMARY:Occupation
+SUMMARY:{summary}
 LOCATION:{salle}
 DESCRIPTION:oui
 UID:{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}-{dtstart.strftime('%Y%m%dT%H%M%SZ')}-{salle}
@@ -35,12 +35,14 @@ END:VEVENT\n"""
     with open(f"calendrier_{salle_cleaned}.ics", "w") as f:
         f.write(icalendar_content)
 
-# Exemple d'utilisation
-salle = "8C-032 CHR*  (32pl./32 écrans sans PC)VP TB"
+# Exemple d'utilisation avec des summaries personnalisés pour chaque horaire
+salle = "8C-030 CHR*  (32pl./32 écrans sans PC)VP TB"
 horaires = [
     (datetime(2024, 2, 13, 8, 0), datetime(2024, 2, 13, 10, 0)),
-    (datetime(2024, 2, 13, 10, 40), datetime(2024, 2, 13, 12, 0)),
-    (datetime(2024, 2, 14, 10, 0), datetime(2024, 2, 2, 12, 0)),
+    (datetime(2024, 2, 13, 10, 40), datetime(2024, 2, 13, 11, 0)),
+    (datetime(2024, 2, 14, 10, 0), datetime(2024, 2, 14, 12, 0)),
 ]
 
-create_icalendar_file(salle, horaires)
+summaries = ["Occupation Salle 1", "Reunion", "Maintenance"]
+
+create_icalendar_file(salle, horaires, summaries)
