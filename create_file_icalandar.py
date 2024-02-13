@@ -36,11 +36,11 @@ END:VEVENT\n"""
         f.write(icalendar_content)
 
 # Exemple d'utilisation
-salle = "8C-041 CHR*  (32pl./32 écrans sans PC)VP TB"
+salle = "8C-032 CHR*  (32pl./32 écrans sans PC)VP TB"
 horaires = [
-    (datetime(2024, 2, 1, 8, 0), datetime(2024, 2, 1, 10, 0)),
-    (datetime(2024, 2, 1, 14, 0), datetime(2024, 2, 1, 16, 0)),
-    (datetime(2024, 2, 2, 10, 0), datetime(2024, 2, 2, 12, 0)),
+    (datetime(2024, 2, 13, 8, 0), datetime(2024, 2, 13, 10, 0)),
+    (datetime(2024, 2, 13, 10, 40), datetime(2024, 2, 13, 12, 0)),
+    (datetime(2024, 2, 14, 10, 0), datetime(2024, 2, 2, 12, 0)),
 ]
 
 create_icalendar_file(salle, horaires)
