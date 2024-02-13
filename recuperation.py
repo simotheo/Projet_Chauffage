@@ -79,8 +79,8 @@ url = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp
 url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2042&projectId=1&calType=ical&lastDate="+date_formatee
 
 # Chemin où le fichier doit être téléchargé et sauvegardé
-chemin = "Téléchargements/"+nom_salle(url)+".ics"
-chemin2 = "Téléchargements/"+nom_salle(url2)+".ics"
+chemin = "Downloads/"+nom_salle(url)+".ics"
+chemin2 = "Downloads/"+nom_salle(url2)+".ics"
 
 # Appel de la fonction de récupération pour télécharger et sauvegarder le fichier
 recuperation(url, chemin)
