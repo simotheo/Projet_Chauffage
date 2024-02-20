@@ -1,0 +1,22 @@
+name: Sauvegarde automatique du dépôt
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Exécute tous les jours à minuit (heure UTC)
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v2
+
+      - name: Créer une archive du dépôt
+        run: tar czf backup.tar.gz .
+
+      - name: Envoyer l'archive vers un service de stockage
+        uses: actions/upload-artifact@v2
+        with:
+          name: backup
+          path: backup.tar.gz
