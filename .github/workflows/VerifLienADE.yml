@@ -1,4 +1,4 @@
-name: Exemple de workflow Python
+name: VerifLienADE
 
 on:
   push:
