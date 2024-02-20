@@ -16,11 +16,11 @@ jobs:
       - name: Configurer Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x' # Remplacez 'x' par la version de Python que vous souhaitez utiliser
+          python-version: '3.x'
 
       - name: Exécuter le script Python
         id: run_script
-        run: python ../verif_lien_ade.py # Remplacez "chemin_vers_votre_script.py" par le chemin relatif ou absolu de votre script Python
+        run: python ../verif_lien_ade.py 
 
       - name: Vérifier le résultat
         run: |
