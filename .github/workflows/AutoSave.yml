@@ -2,7 +2,7 @@ name: Sauvegarde automatique du dépôt
 
 on:
   schedule:
-     - cron: '*/2 * * * *' # Exécute toutes les deux minutes
+    - cron: '* * * * *' # Exécute toutes les minutes
 
 jobs:
   backup:
