@@ -20,7 +20,7 @@ jobs:
 
       - name: Exécuter le script Python
         id: run_script
-        run: python chemin_vers_votre_script.py # Remplacez "chemin_vers_votre_script.py" par le chemin relatif ou absolu de votre script Python
+        run: python ../verif_lien_ade.py # Remplacez "chemin_vers_votre_script.py" par le chemin relatif ou absolu de votre script Python
 
       - name: Vérifier le résultat
         run: |
