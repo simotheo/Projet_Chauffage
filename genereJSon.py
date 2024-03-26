@@ -14,6 +14,8 @@ def base10_to_base64(num):
     return base64_string
 
 def genereJSon(temp):
+    if not isinstance(temp, int):
+        return None  # Si temp n'est pas un nombre entier, retourne None
     # Converti la température en base64
     temp_en_base64 = base10_to_base64(temp)
 
@@ -30,10 +32,11 @@ def genereJSon(temp):
 
     return json_string
 
+
 # Exemple d'utilisation
-temp_en_base_10 = 20
+"""temp_en_base_10 = 20
 json_result = genereJSon(temp_en_base_10)
 
 print(f"Température en base 10: {temp_en_base_10}")
 print("JSON généré:")
-print(json_result)
+print(json_result)"""
