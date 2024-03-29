@@ -13,15 +13,14 @@ def connexion(url,token,org):
     client = influxdb_client.InfluxDBClient(url,token,org)
     return client
 
-
 def writeData(client, bucket,org):
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    data = influxdb_client.Point("Temperature").tag(key="Admin",value="Maxime").field(field="Salle-Test", value=20).time(time=datetime.datetime.utcnow())
+    data = influxdb_client.Point("Salles").tag(key="Admin",value="Maxime").field(field="Salle-001", value="12:00:12").time(time=datetime.datetime.utcnow())
     write_api.write(bucket=bucket, org=org, record=data)
-
+    
 def readData(client,org):
     query_api = client.query_api()
-    query = 'from(bucket: "iot-platform")|> range(start: -1h)|> filter(fn:(r) => r._field == "Salle-Test")'
+    query = 'from(bucket: "iot-platform")|> range(start: -1h)|> filter(fn:(r) => r._field == "Salle-001")'
     result = query_api.query(org=org, query=query)
     return result
 
@@ -36,9 +35,44 @@ def close(client):
     client.close()
     
 client = connexion(host,token,org)
-writeData(client, bucket,org)
-readData(client,org)
+affiche_res(readData(client,org))
 close(client)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
