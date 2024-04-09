@@ -15,7 +15,7 @@ def connexion(url,token,org):
 
 def writeData(client, bucket,org):
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    data = influxdb_client.Point("Salles").tag(key="Admin",value="Maxime").field(field="Salle-001", value="12:00:12").time(time=datetime.datetime.utcnow())
+    data = influxdb_client.Point("Salles").tag(key="Admin",value="Maxime").field(field="Salle-001", value="12:00:12").field("Salle-001", 15).time(time=datetime.datetime.utcnow())
     write_api.write(bucket=bucket, org=org, record=data)
     
 def readData(client,org):
