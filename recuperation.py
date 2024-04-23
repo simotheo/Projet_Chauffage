@@ -2,6 +2,9 @@ import requests
 import re
 from datetime import datetime
 from pathlib import Path
+from icalendar import Calendar, Event
+from datetime import datetime
+import pytz
 
 
 def nom_salle(url):
@@ -65,6 +68,50 @@ def recuperation(url, chemin):
     else:
         return False
     
+def heure_debut(chemin):
+    """
+    Récupère l'heure de début de l'événement dans le fichier ICS.
+    
+    :param chemin: Le chemin du fichier ICS à analyser.
+    :return: L'heure de début du premier événement sous forme de chaîne de caractères.
+             Si l'heure de début n'est pas trouvée, 'None' est retourné par défaut.
+    """
+    with open(chemin, 'rb') as f:
+        cal = Calendar.from_ical(f.read())
+
+    # Parcourir les composants du calendrier
+    for composant in cal.walk():
+        if composant.name == "VEVENT":
+            # Récupérer l'heure de début de l'événement
+            debut = composant.get('dtstart').dt
+            # Si l'heure de début est une date avec fuseau horaire, convertir en heure locale
+            if isinstance(debut, datetime):
+                # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
+                debut = debut.astimezone(pytz.timezone('Europe/Paris'))
+            break
+    return debut
+
+def heure_fin(chemin):
+    """
+    Récupère l'heure de fin de l'événement dans le fichier ICS.
+    
+    :param chemin: Le chemin du fichier ICS à analyser.
+    :return: L'heure de fin du premier événement sous forme de chaîne de caractères.
+             Si l'heure de fin n'est pas trouvée, 'None' est retourné par défaut.
+    """
+    with open(chemin, 'rb') as f:
+        cal = Calendar.from_ical(f.read())
+
+    # Parcourir les composants du calendrier
+    for composant in cal.walk():
+        if composant.name == "VEVENT":
+            # Récupérer l'heure de fin de l'événement
+            fin = composant.get('dtend').dt
+            # Si l'heure de fin est une date avec fuseau horaire, convertir en heure locale
+            if isinstance(fin, datetime):
+                # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
+                fin = fin.astimezone(pytz.timezone('Europe/Paris'))
+    return fin
 
 # Obtenir la date actuelle
 date_actuelle = datetime.now()
@@ -79,10 +126,12 @@ url = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp
 url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2042&projectId=1&calType=ical&lastDate="+date_formatee
 
 # Chemin où le fichier doit être téléchargé et sauvegardé
-chemin = "Downloads/"+nom_salle(url)+".ics"
-chemin2 = "Downloads/"+nom_salle(url2)+".ics"
+chemin = nom_salle(url)+".ics"
+chemin2 = nom_salle(url2)+".ics"
 
 # Appel de la fonction de récupération pour télécharger et sauvegarder le fichier
 recuperation(url, chemin)
 recuperation(url2, chemin2)
+print(heure_debut(chemin))
+print(heure_fin(chemin))
 
