@@ -100,6 +100,7 @@ def heure_fin(chemin):
     :return: L'heure de fin du premier événement sous forme de chaîne de caractères.
              Si l'heure de fin n'est pas trouvée, 'None' est retourné par défaut.
     """
+    fin = None
     with open(chemin, 'rb') as f:
         cal = Calendar.from_ical(f.read())
 
@@ -112,7 +113,6 @@ def heure_fin(chemin):
             if isinstance(fin, datetime):
                 # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
-    else: fin=None
     return fin
 
 # Obtenir la date actuelle
