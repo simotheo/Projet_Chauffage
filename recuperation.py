@@ -89,6 +89,7 @@ def heure_debut(chemin):
                 # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
                 debut = debut.astimezone(pytz.timezone('Europe/Paris'))
             break
+    else: debut=None
     return debut
 
 def heure_fin(chemin):
@@ -111,6 +112,7 @@ def heure_fin(chemin):
             if isinstance(fin, datetime):
                 # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
+    else: fin=None
     return fin
 
 # Obtenir la date actuelle
@@ -123,7 +125,7 @@ date_formatee = date_actuelle.strftime("%Y-%m-%d")
 
 # Construit l'URL avec la date formatée
 url = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2999&projectId=1&calType=ical&lastDate="+date_formatee
-url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2042&projectId=1&calType=ical&lastDate="+date_formatee
+url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=5003&projectId=1&calType=ical&lastDate="+date_formatee
 
 # Chemin où le fichier doit être téléchargé et sauvegardé
 chemin = nom_salle(url)+".ics"
@@ -132,6 +134,6 @@ chemin2 = nom_salle(url2)+".ics"
 # Appel de la fonction de récupération pour télécharger et sauvegarder le fichier
 recuperation(url, chemin)
 recuperation(url2, chemin2)
-print(heure_debut(chemin))
-print(heure_fin(chemin))
+print(heure_debut(chemin2))
+print(heure_fin(chemin2))
 
