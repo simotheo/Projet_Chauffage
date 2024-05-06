@@ -24,16 +24,7 @@ def envoie_mqtt(client, topic, payload):
         print("Échec de l'envoi du message, code de retour : ", result)
         return False
     
-def run():
-    client = mqtt.connexion_mqtt()
-    temp=25
-    mqtt.subscribe_mqtt(client, mqtt.topic_down, mqtt.topic_up)
-    client.on_message=mqtt.on_message
-    client.loop_start()
-    print(recup.genereJSon(temp))
-    envoie_mqtt(client, mqtt.topic_down, recup.genereJSon(temp))
-    mqtt.deconnexion_mqtt(client)
-run()
+
     
 
 

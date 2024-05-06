@@ -3,7 +3,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import datetime
 
 
-host = "http://192.168.170.61:81"
+host = "http://projetl3info.univ-lorawan.fr:81"
 org = "training-usmb"
 token = "U3lsdmFpbk1vbnRhZ255RXN0VW5DaGFtcGlvbl9Gb3JtYXRpb25Mb1JhV0FOX1VuaXZfU2F2b2llXzIwMjMhCg=="
 bucket="iot-platform"
@@ -13,14 +13,14 @@ def connexion(url,token,org):
     client = influxdb_client.InfluxDBClient(url,token,org)
     return client
 
-def writeData(client, bucket,org):
+def writeData(client, bucket,org,nom_salle,heure,temperature):
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    data = influxdb_client.Point("Salles").tag(key="Admin",value="Maxime").field(field="Salle-001", value="12:00:12").field("Salle-001", 15).time(time=datetime.datetime.utcnow())
+    data = influxdb_client.Point("Salles").tag(key="Admin",value="Maxime").field(field="Salle", value=nom_salle).field(field="Heure", value=str(heure)).field(field="temperature", value=temperature).time(time=datetime.datetime.utcnow())
     write_api.write(bucket=bucket, org=org, record=data)
     
-def readData(client,org):
+def readData(client,org,salle):
     query_api = client.query_api()
-    query = 'from(bucket: "iot-platform")|> range(start: -1h)|> filter(fn:(r) => r._field == "Salle-001")'
+    query = 'from(bucket: "iot-platform")|> range(start: -1h)'
     result = query_api.query(org=org, query=query)
     return result
 
@@ -34,9 +34,6 @@ def affiche_res(result):
 def close(client):
     client.close()
     
-client = connexion(host,token,org)
-affiche_res(readData(client,org))
-close(client)
 
 
 

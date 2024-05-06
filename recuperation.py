@@ -115,6 +115,9 @@ def heure_fin(chemin):
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
     return fin
 
+def make_chemin(url):
+    return nom_salle(url)+".ics"
+
 # Obtenir la date actuelle
 date_actuelle = datetime.now()
 
@@ -125,15 +128,7 @@ date_formatee = date_actuelle.strftime("%Y-%m-%d")
 
 # Construit l'URL avec la date formatée
 url = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2999&projectId=1&calType=ical&lastDate="+date_formatee
-url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=5003&projectId=1&calType=ical&lastDate="+date_formatee
+url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=3543&projectId=1&calType=ical&lastDate="+date_formatee
 
-# Chemin où le fichier doit être téléchargé et sauvegardé
-chemin = nom_salle(url)+".ics"
-chemin2 = nom_salle(url2)+".ics"
-
-# Appel de la fonction de récupération pour télécharger et sauvegarder le fichier
-recuperation(url, chemin)
-recuperation(url2, chemin2)
-print(heure_debut(chemin2))
-print(heure_fin(chemin2))
+chemin=make_chemin(url2)
 
