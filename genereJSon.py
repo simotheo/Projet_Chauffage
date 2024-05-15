@@ -2,6 +2,14 @@ import base64
 import json
 
 def base10_to_base64(num):
+    """Converti un nombre entier en base 10 en une chaîne de caractères en base64.
+
+    Args:
+        num (int): Nombre entier à convertir
+
+    Returns:
+        str: Chaîne de caractères en base64
+    """
     # Converti le nombre en bytes
     byte_representation = int.to_bytes(num, (num.bit_length() + 7) // 8, 'big')
 
@@ -14,6 +22,14 @@ def base10_to_base64(num):
     return base64_string
 
 def genereJSon(temp):
+    """Génère un objet JSON pour envoyer une température en base64 à un appareil.
+
+    Args:
+        temp (int): Température à envoyer
+
+    Returns:
+        str: Objet JSON
+    """
     if not isinstance(temp, int):
         return None  # Si temp n'est pas un nombre entier, retourne None
     # Converti la température en base64
@@ -32,11 +48,3 @@ def genereJSon(temp):
 
     return json_string
 
-
-# Exemple d'utilisation
-"""temp_en_base_10 = 20
-json_result = genereJSon(temp_en_base_10)
-
-print(f"Température en base 10: {temp_en_base_10}")
-print("JSON généré:")
-print(json_result)"""

@@ -9,21 +9,25 @@ import pytz
 
 #Création url
 def create_url(num):
+    """Crée une URL pour l'emploi du temps ADE d'une salle spécifique.
+
+    Args:
+        num (int): Numéro de la salle.
+
+    Returns:
+        str: URL de l'emploi du temps ADE de la salle spécifiée.
+    """
     return "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources="+str(num)+"&projectId=1&calType=ical&lastDate="+date_formatee
 
 def nom_salle(url):
-    """
-    Extrait l'identifiant de la ressource depuis l'URL fournie.
-    
-    Cette fonction recherche une séquence spécifique dans l'URL qui correspond
-    à l'identifiant de la ressource indiqué après '1&resources='. L'identifiant est 
-    supposé être un nombre, et est extrait à l'aide d'une expression régulière.
-    
-    :param url: L'URL à partir de laquelle extraire l'identifiant de la ressource.
-    :return: L'identifiant de la ressource sous forme de chaîne de caractères.
-             Si aucun identifiant n'est trouvé, 'None' est retourné par défaut.
-    """
+    """Récupère le nom de la salle à partir de l'URL de l'emploi du temps ADE.
 
+    Args:
+        url (str): URL de l'emploi du temps ADE.
+
+    Returns:
+        str: Nom de la salle extrait de l'URL.
+    """
     # Initialisation de la variable de retour à None pour gérer le cas où aucun match n'est trouvé
     res = None
     
@@ -41,11 +45,13 @@ def nom_salle(url):
 
 
 def supprime_fichier(chemin):
-    """
-    Supprime le fichier au chemin spécifié si celui-ci existe.
-    
-    :param chemin: Le chemin du fichier à supprimer.
-    :return: True si le fichier a été supprimé, False sinon.
+    """Supprime un fichier à un chemin spécifié.
+
+    Args:
+        chemin (str): Le chemin du fichier à supprimer.
+
+    Returns:
+        bool: True si le fichier a été supprimé avec succès, False sinon.
     """
     chemin_fichier = Path(chemin)
     if chemin_fichier.exists():  # Vérifie si le fichier existe
@@ -55,13 +61,14 @@ def supprime_fichier(chemin):
         return False
 
 def recuperation(url, chemin):
-    """
-    Télécharge un fichier depuis une URL et le sauvegarde à un chemin spécifié.
-    Supprime d'abord le fichier existant au même chemin, si présent.
-    
-    :param url: L'URL du fichier à télécharger.
-    :param chemin: Le chemin où enregistrer le fichier téléchargé.
-    :return: True si le fichier a été téléchargé et enregistré avec succès, False sinon.
+    """Télécharge un fichier à partir d'une URL et l'enregistre localement.
+
+    Args:
+        url (str): L'URL du fichier à télécharger.
+        chemin (str): Le chemin où enregistrer le fichier téléchargé.
+
+    Returns:
+        bool: True si le téléchargement a réussi, False sinon.
     """
     supprime_fichier(chemin)  # Supprime le fichier existant si nécessaire
     reponse = requests.get(url)  # Effectue une requête GET pour télécharger le fichier
@@ -73,12 +80,13 @@ def recuperation(url, chemin):
         return False
     
 def heure_debut(chemin):
-    """
-    Récupère l'heure de début de l'événement dans le fichier ICS.
-    
-    :param chemin: Le chemin du fichier ICS à analyser.
-    :return: L'heure de début du premier événement sous forme de chaîne de caractères.
-             Si l'heure de début n'est pas trouvée, 'None' est retourné par défaut.
+    """Récupère l'heure de début de l'événement dans le fichier ICS.
+
+    Args:
+        chemin (str): Le chemin du fichier ICS à analyser.
+
+    Returns:
+        datetime: L'heure de début du premier événement.
     """
     with open(chemin, 'rb') as f:
         cal = Calendar.from_ical(f.read())
@@ -97,12 +105,13 @@ def heure_debut(chemin):
     return debut
 
 def heure_fin(chemin):
-    """
-    Récupère l'heure de fin de l'événement dans le fichier ICS.
-    
-    :param chemin: Le chemin du fichier ICS à analyser.
-    :return: L'heure de fin du premier événement sous forme de chaîne de caractères.
-             Si l'heure de fin n'est pas trouvée, 'None' est retourné par défaut.
+    """Recupère l'heure de fin de l'événement dans le fichier ICS.
+
+    Args:
+        chemin (str): Le chemin du fichier ICS à analyser.
+
+    Returns:
+        datetime: L'heure de fin du premier événement.
     """
     fin = None
     with open(chemin, 'rb') as f:
@@ -120,17 +129,20 @@ def heure_fin(chemin):
     return fin
 
 def make_chemin(url):
+    """Crée le chemin du fichier ICS à partir de l'URL de l'emploi du temps ADE.
+
+    Args:
+        url (str): URL de l'emploi du temps ADE.
+
+    Returns:
+        str: Chemin du fichier ICS.
+    """
     return nom_salle(url)+".ics"
 
 # Obtenir la date actuelle
 date_actuelle = datetime.now()
 
-
 # Formater la date actuelle pour l'incorporer dans l'URL
 date_formatee = date_actuelle.strftime("%Y-%m-%d")
 
-
-# Construit l'URL avec la date formatée
-url = create_url(5003)
-chemin=make_chemin(url)
 

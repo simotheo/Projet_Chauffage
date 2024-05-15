@@ -1,6 +1,13 @@
 from datetime import datetime, timedelta
 
 def create_icalendar_file(salle, horaires, summaries=None):
+    """Crée un fichier iCalendar (.ics) pour une salle donnée avec les horaires et les summaries spécifiés.
+
+    Args:
+        salle (str): Nom de la salle
+        horaires (list): Liste de tuples de datetime pour les horaires de début et de fin
+        summaries (list, optional): Liste des summaries pour chaque horaire. Defaults to None.
+    """
     # Remplacez les caractères invalides dans le nom de la salle
     salle_cleaned = salle.replace('/', '').replace('*', '').replace(' ', '_')
     

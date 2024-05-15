@@ -15,12 +15,32 @@ temperature_occupee=20
 temperature_non_occupee=17
 
 def ade(url,chemin):
+    """Récupère les heures de début et de fin d'une salle depuis un fichier iCalendar.
+
+    Args:
+        url (str): URL du fichier iCalendar
+        chemin (str): Chemin du fichier iCalendar
+
+    Returns:
+        tuple: Heure de début et heure de fin
+    """
     recup.recuperation(url, chemin)
     debut = recup.heure_debut(chemin)
     fin = recup.heure_fin(chemin)
     return debut, fin
 
 def calcul_temperature(debut,fin):
+    """Calcul de la température en fonction de l'occupation de la salle.
+
+    Args:
+        debut (datetime): Heure de début d'occupation de la salle
+        fin (datetime): Heure de fin d'occupation de la salle
+
+    Returns:
+        int: Température à appliquer
+    """
+    if debut is None or fin is None:
+        return temperature_non_occupee
     actu = datetime.datetime.now(datetime.timezone.utc)
     if actu >= debut and actu <= fin:
         temperature = temperature_occupee
@@ -30,11 +50,27 @@ def calcul_temperature(debut,fin):
 
 
 def ecrire_consigne(temperature,nom_salle,debut,fin):
+    """Ecriture de la consigne dans la base de données InfluxDB.
+
+    Args:
+        temperature (int): Température à appliquer
+        nom_salle (str): Nom de la salle
+        debut (datetime): Heure de début d'occupation de la salle
+        fin (datetime): Heure de fin d'occupation de la salle
+    """
     client = connexion.connexion(connexion.host,connexion.token,connexion.org)
     connexion.writeData(client, connexion.bucket,connexion.org,nom_salle,temperature,debut,fin)
     connexion.close(client)
     
 def recup_consigne(nom_salle):
+    """Récupération de la consigne dans la base de données InfluxDB.
+
+    Args:
+        nom_salle (str): Nom de la salle
+
+    Returns:
+        list: Résultat de la requête
+    """
     client = connexion.connexion(connexion.host,connexion.token,connexion.org)
     result = connexion.readData(client,connexion.org,nom_salle)
     connexion.close(client)
@@ -42,6 +78,14 @@ def recup_consigne(nom_salle):
 
 
 def envoie_mqtt(temperature,client,topic_down,topic_up):
+    """Envoie de la température en base64 à un appareil via MQTT.
+
+    Args:
+        temperature (int): Température à envoyer
+        client (mqtt.Client): Objet client de connexion MQTT
+        topic_down (str): Topic pour envoyer un message
+        topic_up (str): Topic pour recevoir un message
+    """
     client=mqtt.connexion_mqtt(topic_up)
     mqtt.subscribe_mqtt(client, topic_down, topic_up)
     json = gJ.genereJSon(temperature)
@@ -51,8 +95,13 @@ def envoie_mqtt(temperature,client,topic_down,topic_up):
 
 
 def table_to_dataframe(table):
-    """
-    Convertir une table InfluxDB en DataFrame.
+    """Convertit une table InfluxDB en DataFrame Pandas.
+
+    Args:
+        table (influxdb_client.client.InfluxDBClient.query): Table InfluxDB
+
+    Returns:
+        pd.DataFrame: DataFrame Pandas
     """
     
     columns = [column.label for column in table.columns]
@@ -64,8 +113,10 @@ def table_to_dataframe(table):
     return pd.DataFrame(records, columns=columns)
 
 def afficher_table_list(table_list):
-    """
-    Affiche les tables d'un TableList en DataFrames individuels.
+    """Affiche les tables InfluxDB sous forme de DataFrames Pandas.
+
+    Args:
+        table_list (list): Liste de tables InfluxDB
     """
     for i, table in enumerate(table_list):
         df = table_to_dataframe(table)
@@ -73,6 +124,14 @@ def afficher_table_list(table_list):
         print(df)
 
 def get_setpoint_from_message(message):
+    """Extrait le setpoint d'un message MQTT.
+
+    Args:
+        message (str): Message MQTT
+
+    Returns:
+        int: Setpoint extrait du message
+    """
     try:
         data = json.loads(message)
         setpoint = data['uplink_message']['decoded_payload']['setpoint']
@@ -82,6 +141,11 @@ def get_setpoint_from_message(message):
         return None
     
 def calcul_consigne(url):
+    """Calcul de la consigne de température pour une salle.
+
+    Args:
+        url (str): URL de l'emploi du temps ADE
+    """
     chemin=recup.make_chemin(url)
     debut,fin=ade(url,chemin) #recupération des heures de début et de fin
     nom_salle=recup.nom_salle(url) #recupération du nom de la salle
@@ -89,10 +153,18 @@ def calcul_consigne(url):
     ecrire_consigne(temperature,nom_salle,debut,fin) #écriture de la consigne dans la base de données
     
 def verif_envoie_mqtt(url, topic_down, topic_up):
+    """Vérifie si la température doit être envoyée à la vanne via MQTT.
+
+    Args:
+        url (str): URL de l'emploi du temps ADE
+        topic_down (str): Topic pour envoyer un message
+        topic_up (str): Topic pour recevoir un message
+    """
     client=mqtt.connexion_mqtt(topic_up)
     client_bdd=connexion.connexion(connexion.host,connexion.token,connexion.org)
     nom_salle=recup.nom_salle(url)
     data=recup_consigne(nom_salle)
+    connexion.affiche_res(data)
     données=connexion.recup_info(data)
     temperature= int(données[2][1])
     message = mqtt.wait_for_message(client,mqtt.broker, mqtt.username, mqtt.password)
@@ -101,12 +173,14 @@ def verif_envoie_mqtt(url, topic_down, topic_up):
         envoie_mqtt(temperature,client,topic_down,topic_up)
         print("Message envoyé")
     else:
-        print("Erreur lors de la réception du message")
+        print("Message non envoyé car la consigne est déjà la bonne")
     connexion.close(client_bdd)
     mqtt.deconnexion_mqtt(client)
     
     
 def run():
+    """Fonction principale pour exécuter les tâches planifiées.
+    """
     for salle in liste_vanne:
         id_salle = liste_vanne[salle][0]
         liste_vanne_salle = liste_vanne[salle][1]

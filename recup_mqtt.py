@@ -14,6 +14,14 @@ def create_topic(device_id):
     return f"v3/usmb-project@ttn/devices/{device_id}/down/replace", f"v3/usmb-project@ttn/devices/{device_id}/up"
 
 def on_connect(client, userdata, flags, rc):
+    """Fonction de rappel appelée lors de la connexion au broker MQTT
+
+    Args:
+        client (mqtt.Client): Objet client de connexion
+        userdata (dict): Données utilisateur
+        flags (dict): Drapeaux de connexion
+        rc (int): Code de retour de connexion
+    """
     client.subscribe(userdata['topic'])
     if rc == 0:
         client.connected_flag = True
@@ -22,10 +30,13 @@ def on_connect(client, userdata, flags, rc):
         print("Echec de la connexion avec le code", rc)
 
 def connexion_mqtt(topic):
-    """Connexion au broker MQTT
+    """Connexion à un broker MQTT
+
+    Args:
+        topic (str): Topic auquel s'abonner
 
     Returns:
-        client: Objet client de connexion
+        mqtt.Client: Objet client de connexion
     """
     mqtt.Client.connected_flag=False
     client = mqtt.Client()      
@@ -71,6 +82,13 @@ def subscribe_mqtt(client, topic_down, topic_up):
 
 
 def on_message(client, userdata, msg):
+    """Fonction de rappel appelée lors de la réception d'un message MQTT
+
+    Args:
+        client (mqtt.Client): Objet client de connexion
+        userdata (dict): Données utilisateur
+        msg (mqtt.MQTTMessage): Message reçu
+    """
     global received_message
     print("Message reçu sur le topic " + msg.topic + " avec le payload " + str(msg.payload))
     received_message = msg.payload.decode()
@@ -79,6 +97,17 @@ def on_message(client, userdata, msg):
     
     
 def wait_for_message(client,broker_address, username, password):
+    """Attend la réception d'un message MQTT
+
+    Args:
+        client (mqtt.Client): Objet client de connexion
+        broker_address (str): Adresse du broker MQTT
+        username (str): Nom d'utilisateur pour la connexion
+        password (str): Mot de passe pour la connexion
+
+    Returns:
+        str: Message reçu
+    """
     global received_message
     received_message = None
     
@@ -99,6 +128,11 @@ def wait_for_message(client,broker_address, username, password):
     return received_message
 
 def deconnexion_mqtt(client):
+    """Déconnecte un client MQTT
+
+    Args:
+        client (mqtt.Client): Objet client de connexion
+    """
     client.disconnect() # disconnect
     print("Déconnecté du broker")
 
