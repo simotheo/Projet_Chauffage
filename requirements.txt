@@ -1,0 +1,6 @@
+influxdb-client==1.23.0
+paho-mqtt==1.5.1
+requests==2.26.0
+icalendar==4.0.7
+pytz==2023.3
+pandas==1.5.3
