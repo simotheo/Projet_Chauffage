@@ -7,6 +7,10 @@ from datetime import datetime
 import pytz
 
 
+#Création url
+def create_url(num):
+    return "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources="+str(num)+"&projectId=1&calType=ical&lastDate="+date_formatee
+
 def nom_salle(url):
     """
     Extrait l'identifiant de la ressource depuis l'URL fournie.
@@ -127,8 +131,6 @@ date_formatee = date_actuelle.strftime("%Y-%m-%d")
 
 
 # Construit l'URL avec la date formatée
-url = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=2999&projectId=1&calType=ical&lastDate="+date_formatee
-url2 = "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources=3543&projectId=1&calType=ical&lastDate="+date_formatee
-
-chemin=make_chemin(url2)
+url = create_url(5003)
+chemin=make_chemin(url)
 
