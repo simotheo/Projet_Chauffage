@@ -1,5 +1,6 @@
 import time
 from paho.mqtt import client as mqtt
+import variables as var
 
 
 def create_topic(device_id):
@@ -43,9 +44,9 @@ def connexion_mqtt(topic):
     client = mqtt.Client(userdata={'topic': topic})       
     client.on_connect=on_connect  
     client.loop_start()
-    print("Connexion au broker ",broker)
-    client.connect(broker)      
-    client.username_pw_set(username, password)
+    print("Connexion au broker ",var.broker)
+    client.connect(var.broker)      
+    client.username_pw_set(var.username, var.password)
     while not client.connected_flag: 
         print("En attente")
         time.sleep(1)
@@ -117,7 +118,7 @@ def wait_for_message(client,broker_address, username, password):
     client.on_message = on_message
     
     client.username_pw_set(username, password)
-    client.connect(broker_address, port, 60)
+    client.connect(broker_address, var.port, 60)
 
     client.loop_start()
 
@@ -136,11 +137,6 @@ def deconnexion_mqtt(client):
     client.disconnect() # disconnect
     print("Déconnecté du broker")
 
-broker = 'eu1.cloud.thethings.network'
-port = 1883
-client_id = "mqtt-explorer-95791e2c"
-username = 'usmb-project@ttn'
-password = 'NNSXS.6TZ4WH2K4KWCG7WQHL6FYI6HPC3HMT6V6IOY6IQ.QS3SCCTRWJCFQYQLLSCBNQUHD23WHBF6IIWOW6EA445O7A5SR7ZA'
 received_message = None
 
 

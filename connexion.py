@@ -1,12 +1,8 @@
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 import datetime
+import variables as var
 
-
-host = "http://projetl3info.univ-lorawan.fr:81"
-org = "training-usmb"
-token = "U3lsdmFpbk1vbnRhZ255RXN0VW5DaGFtcGlvbl9Gb3JtYXRpb25Mb1JhV0FOX1VuaXZfU2F2b2llXzIwMjMhCg=="
-bucket="iot-platform"
 
 
 def connexion(url,token,org):

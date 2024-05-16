@@ -8,13 +8,10 @@ import sched
 import time
 import json
 import pandas as pd
+import variables as var
 
 scheduler = sched.scheduler(time.time, time.sleep)
-liste_vanne={"4C-28": [5026,["simu-vanne-01"]],"8C-037": [5004,["simu-vanne-01"]]}
-temperature_occupee=20
-temperature_non_occupee=17
-temps_prechauffage=2
-temps_arret=1
+
 
 def calcul_heure(date,heure,decalage):
     """Calcul de l'heure de début et de fin d'occupation de la salle.
@@ -48,8 +45,8 @@ def ade(url,chemin):
     fin = recup.heure_fin(chemin)
     if debut is None or fin is None:
         return None, None
-    new_debut=calcul_heure(str(debut.date()),str(debut.time()),temps_prechauffage)
-    new_fin=calcul_heure(str(fin.date()),str(fin.time()),temps_arret)
+    new_debut=calcul_heure(str(debut.date()),str(debut.time()),var.temps_prechauffage)
+    new_fin=calcul_heure(str(fin.date()),str(fin.time()),var.temps_arret)
     return new_debut, new_fin
 
 def calcul_temperature(debut,fin):
@@ -63,13 +60,13 @@ def calcul_temperature(debut,fin):
         int: Température à appliquer
     """
     if debut is None or fin is None:
-        return temperature_non_occupee
+        return var.temperature_non_occupee
     actu = datetime.datetime.now(datetime.timezone.utc)
-    actu = calcul_heure(str(actu.date()),str(actu.time()),-temps_prechauffage)
+    actu = calcul_heure(str(actu.date()),str(actu.time()),-var.temps_prechauffage)
     if (actu >= debut and actu <= fin):
-        temperature = temperature_occupee
+        temperature = var.temperature_occupee
     else:
-        temperature = temperature_non_occupee
+        temperature = var.temperature_non_occupee
     return temperature
 
 
@@ -82,8 +79,8 @@ def ecrire_consigne(temperature,nom_salle,debut,fin):
         debut (datetime): Heure de début d'occupation de la salle
         fin (datetime): Heure de fin d'occupation de la salle
     """
-    client = connexion.connexion(connexion.host,connexion.token,connexion.org)
-    connexion.writeData(client, connexion.bucket,connexion.org,nom_salle,temperature,debut,fin)
+    client = connexion.connexion(var.host,var.token,var.org)
+    connexion.writeData(client, var.bucket,var.org,nom_salle,temperature,debut,fin)
     connexion.close(client)
     
 def recup_consigne(nom_salle):
@@ -95,8 +92,8 @@ def recup_consigne(nom_salle):
     Returns:
         list: Résultat de la requête
     """
-    client = connexion.connexion(connexion.host,connexion.token,connexion.org)
-    result = connexion.readData(client,connexion.org,nom_salle)
+    client = connexion.connexion(var.host,var.token,var.org)
+    result = connexion.readData(client,var.org,nom_salle)
     connexion.close(client)
     return result
 
@@ -185,13 +182,13 @@ def verif_envoie_mqtt(url, topic_down, topic_up):
         topic_up (str): Topic pour recevoir un message
     """
     client=mqtt.connexion_mqtt(topic_up)
-    client_bdd=connexion.connexion(connexion.host,connexion.token,connexion.org)
+    client_bdd=connexion.connexion(var.host,var.token,var.org)
     nom_salle=recup.nom_salle(url)
     data=recup_consigne(nom_salle)
     connexion.affiche_res(data)
     données=connexion.recup_info(data)
     temperature= int(données[2][1])
-    message = mqtt.wait_for_message(client,mqtt.broker, mqtt.username, mqtt.password)
+    message = mqtt.wait_for_message(client,var.broker, var.username, var.password)
     setpoint=int(get_setpoint_from_message(message))
     if setpoint!=temperature:
         envoie_mqtt(temperature,client,topic_down,topic_up)
@@ -205,9 +202,9 @@ def verif_envoie_mqtt(url, topic_down, topic_up):
 def run():
     """Fonction principale pour exécuter les tâches planifiées.
     """
-    for salle in liste_vanne:
-        id_salle = liste_vanne[salle][0]
-        liste_vanne_salle = liste_vanne[salle][1]
+    for salle in var.liste_vannes:
+        id_salle = var.liste_vannes[salle][0]
+        liste_vanne_salle = var.liste_vannes[salle][1]
         for vanne in liste_vanne_salle:
             url=recup.create_url(id_salle)
             topic_down,topic_up = mqtt.create_topic(vanne)
