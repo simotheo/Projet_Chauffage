@@ -10,9 +10,28 @@ import json
 import pandas as pd
 
 scheduler = sched.scheduler(time.time, time.sleep)
-liste_vanne={"8C-032": [5003,["simu-vanne-01"]]}
+liste_vanne={"4C-28": [5026,["simu-vanne-01"]],"8C-037": [5004,["simu-vanne-01"]]}
 temperature_occupee=20
 temperature_non_occupee=17
+temps_prechauffage=2
+temps_arret=1
+
+def calcul_heure(date,heure,decalage):
+    """Calcul de l'heure de début et de fin d'occupation de la salle.
+
+    Args:
+        date (str): Date de l'occupation
+        heure (str): Heure de l'occupation
+
+    Returns:
+        tuple: Heure de début et heure de fin
+    """
+    date = date.split("-")
+    heure = heure.split(":")
+    normal = datetime.datetime(int(date[0]),int(date[1]),int(date[2]),int(heure[0]),int(heure[1]),0,0,datetime.timezone.utc)
+    new_heure = normal - datetime.timedelta(hours=decalage)
+    return new_heure
+
 
 def ade(url,chemin):
     """Récupère les heures de début et de fin d'une salle depuis un fichier iCalendar.
@@ -27,7 +46,11 @@ def ade(url,chemin):
     recup.recuperation(url, chemin)
     debut = recup.heure_debut(chemin)
     fin = recup.heure_fin(chemin)
-    return debut, fin
+    if debut is None or fin is None:
+        return None, None
+    new_debut=calcul_heure(str(debut.date()),str(debut.time()),temps_prechauffage)
+    new_fin=calcul_heure(str(fin.date()),str(fin.time()),temps_arret)
+    return new_debut, new_fin
 
 def calcul_temperature(debut,fin):
     """Calcul de la température en fonction de l'occupation de la salle.
@@ -42,7 +65,8 @@ def calcul_temperature(debut,fin):
     if debut is None or fin is None:
         return temperature_non_occupee
     actu = datetime.datetime.now(datetime.timezone.utc)
-    if actu >= debut and actu <= fin:
+    actu = calcul_heure(str(actu.date()),str(actu.time()),-temps_prechauffage)
+    if (actu >= debut and actu <= fin):
         temperature = temperature_occupee
     else:
         temperature = temperature_non_occupee
