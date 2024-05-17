@@ -1,6 +1,7 @@
 import time
 from paho.mqtt import client as mqtt
 import variables as var
+import main as m
 
 
 def create_topic(device_id):
@@ -23,14 +24,13 @@ def on_connect(client, userdata, flags, rc):
         flags (dict): Drapeaux de connexion
         rc (int): Code de retour de connexion
     """
-    client.subscribe(userdata['topic'])
     if rc == 0:
         client.connected_flag = True
         print("Connecté avec le code ", rc)
     else:
         print("Echec de la connexion avec le code", rc)
-
-def connexion_mqtt(topic):
+        
+def connexion_mqtt():
     """Connexion à un broker MQTT
 
     Args:
@@ -40,8 +40,7 @@ def connexion_mqtt(topic):
         mqtt.Client: Objet client de connexion
     """
     mqtt.Client.connected_flag=False
-    client = mqtt.Client()      
-    client = mqtt.Client(userdata={'topic': topic})       
+    client = mqtt.Client()             
     client.on_connect=on_connect  
     client.loop_start()
     print("Connexion au broker ",var.broker)
@@ -53,6 +52,7 @@ def connexion_mqtt(topic):
     print("Connecté au broker")
     client.loop_stop()    
     return client
+
 
 
 
@@ -93,40 +93,8 @@ def on_message(client, userdata, msg):
     global received_message
     print("Message reçu sur le topic " + msg.topic + " avec le payload " + str(msg.payload))
     received_message = msg.payload.decode()
-    client.disconnect()
+    m.envoie_mqtt(client,userdata['topic_down'],m.get_setpoint_from_message(received_message))
     
-    
-    
-def wait_for_message(client,broker_address, username, password):
-    """Attend la réception d'un message MQTT
-
-    Args:
-        client (mqtt.Client): Objet client de connexion
-        broker_address (str): Adresse du broker MQTT
-        username (str): Nom d'utilisateur pour la connexion
-        password (str): Mot de passe pour la connexion
-
-    Returns:
-        str: Message reçu
-    """
-    global received_message
-    received_message = None
-    
-    
-    
-    client.on_connect = on_connect
-    client.on_message = on_message
-    
-    client.username_pw_set(username, password)
-    client.connect(broker_address, var.port, 60)
-
-    client.loop_start()
-
-    while received_message is None:
-        pass
-
-    client.loop_stop()
-    return received_message
 
 def deconnexion_mqtt(client):
     """Déconnecte un client MQTT
@@ -136,8 +104,6 @@ def deconnexion_mqtt(client):
     """
     client.disconnect() # disconnect
     print("Déconnecté du broker")
-
-received_message = None
 
 
 

@@ -35,6 +35,12 @@ def writeData(client, bucket,org,salle,temperature,debut,fin):
     data = influxdb_client.Point(salle).tag(key="Admin",value="Maxime").field(field="temperature", value=temperature).field(field="heure de debut", value=str(debut)).field(field="heure de fin", value=str(fin)).time(time=datetime.datetime.utcnow())
     write_api.write(bucket=bucket, org=org, record=data)
     
+def writeSetpoint(client,bucket,org,vanne,setpoint,salle):
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+    data = influxdb_client.Point(vanne).tag(key="Admin",value="Maxime").field(field="temperature", value=setpoint).field(field="salle", value=salle).time(time=datetime.datetime.utcnow())
+    write_api.write(bucket=bucket, org=org, record=data)
+    
+    
 def readData(client,org,salle):
     """Lit les données de la base de donnée InfluxDB
 

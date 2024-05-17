@@ -1,6 +1,7 @@
 import genereJSon as recup
 import recup_mqtt as mqtt
 from paho.mqtt import client as paho
+import variables as var
 
 def envoie_mqtt(client, topic, payload):
     """Envoie un message MQTT
@@ -13,9 +14,7 @@ def envoie_mqtt(client, topic, payload):
     Returns:
         bool: True si l'envoi a réussi, False sinon
     """
-    # Tentative d'envoi du message MQTT
     result, _ = client.publish(topic, payload)
-
     # Vérification si l'envoi a réussi
     if result == paho.MQTT_ERR_SUCCESS:
         print("Message envoyé")
@@ -23,6 +22,7 @@ def envoie_mqtt(client, topic, payload):
     else:
         print("Échec de l'envoi du message, code de retour : ", result)
         return False
+    
     
 
     

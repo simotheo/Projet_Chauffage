@@ -1,8 +1,11 @@
-liste_vannes={"4C-28": [5026,["simu-vanne-01"]],"8C-037": [5004,["simu-vanne-01"]]}
+liste_salles = [5026,5004,2986]
+liste_vannes={"simu-vanne-01": [5026,"4C-28"], "simu-vanne-02": [5004,"C est moi qui me tape le code :("], "simu-vanne-03": [2986,"8C-34"]}
+threads={}
 temperature_occupee=20
 temperature_non_occupee=17
 temps_prechauffage=2
 temps_arret=1
+
 
 host = "http://projetl3info.univ-lorawan.fr:81"
 org = "training-usmb"

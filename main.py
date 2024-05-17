@@ -4,14 +4,13 @@ import recuperation as recup
 import recup_mqtt as mqtt
 import genereJSon as gJ
 import datetime
-import sched
 import time
 import json
-import pandas as pd
+import plannificateur as pls
 import variables as var
-
+import sched
+import threadVanne as tv
 scheduler = sched.scheduler(time.time, time.sleep)
-
 
 def calcul_heure(date,heure,decalage):
     """Calcul de l'heure de début et de fin d'occupation de la salle.
@@ -83,6 +82,17 @@ def ecrire_consigne(temperature,nom_salle,debut,fin):
     connexion.writeData(client, var.bucket,var.org,nom_salle,temperature,debut,fin)
     connexion.close(client)
     
+    
+def ecrire_setpoint(setpoint,salle,vanne):
+    """Ecrit le setpoint dans la base de donnée InfluxDB
+
+    Args:
+        setpoint (float): setpoint
+    """
+    client = connexion.connexion(var.host,var.token,var.org)
+    connexion.writeSetpoint(client, var.bucket,var.org,vanne,setpoint,salle)
+    connexion.close(client)
+    
 def recup_consigne(nom_salle):
     """Récupération de la consigne dans la base de données InfluxDB.
 
@@ -98,7 +108,7 @@ def recup_consigne(nom_salle):
     return result
 
 
-def envoie_mqtt(temperature,client,topic_down,topic_up):
+def envoie_mqtt(client,topic_down,setpoint,salle,nom_vanne):
     """Envoie de la température en base64 à un appareil via MQTT.
 
     Args:
@@ -107,42 +117,16 @@ def envoie_mqtt(temperature,client,topic_down,topic_up):
         topic_down (str): Topic pour envoyer un message
         topic_up (str): Topic pour recevoir un message
     """
-    client=mqtt.connexion_mqtt(topic_up)
-    mqtt.subscribe_mqtt(client, topic_down, topic_up)
-    json = gJ.genereJSon(temperature)
-    print(json)
-    em.envoie_mqtt(client,topic_down,json) 
+    ecrire_setpoint(setpoint,salle,nom_vanne)
+    temperature_voulue = connexion.recup_info(recup_consigne(var.threads[topic_down]))[2][1]
+    if verif_envoie_mqtt(setpoint, temperature_voulue):
+        json = gJ.genereJSon(temperature_voulue)
+        print(json)
+        em.envoie_mqtt(client,topic_down,json)
+        print("Envoi de la température à la vanne")
+    else:
+        print("La température est déjà la bonne")
     
-
-
-def table_to_dataframe(table):
-    """Convertit une table InfluxDB en DataFrame Pandas.
-
-    Args:
-        table (influxdb_client.client.InfluxDBClient.query): Table InfluxDB
-
-    Returns:
-        pd.DataFrame: DataFrame Pandas
-    """
-    
-    columns = [column.label for column in table.columns]
-    
-    
-    records = [record.values for record in table.records]
-    
-    
-    return pd.DataFrame(records, columns=columns)
-
-def afficher_table_list(table_list):
-    """Affiche les tables InfluxDB sous forme de DataFrames Pandas.
-
-    Args:
-        table_list (list): Liste de tables InfluxDB
-    """
-    for i, table in enumerate(table_list):
-        df = table_to_dataframe(table)
-        print(f"\nTable {i} (Measurement: {table.records[0].get_measurement()}):")
-        print(df)
 
 def get_setpoint_from_message(message):
     """Extrait le setpoint d'un message MQTT.
@@ -173,7 +157,7 @@ def calcul_consigne(url):
     temperature=calcul_temperature(debut,fin) #calcul de la température
     ecrire_consigne(temperature,nom_salle,debut,fin) #écriture de la consigne dans la base de données
     
-def verif_envoie_mqtt(url, topic_down, topic_up):
+def verif_envoie_mqtt(setpoint, temperature_voulue):
     """Vérifie si la température doit être envoyée à la vanne via MQTT.
 
     Args:
@@ -181,44 +165,61 @@ def verif_envoie_mqtt(url, topic_down, topic_up):
         topic_down (str): Topic pour envoyer un message
         topic_up (str): Topic pour recevoir un message
     """
-    client=mqtt.connexion_mqtt(topic_up)
-    client_bdd=connexion.connexion(var.host,var.token,var.org)
-    nom_salle=recup.nom_salle(url)
-    data=recup_consigne(nom_salle)
-    connexion.affiche_res(data)
-    données=connexion.recup_info(data)
-    temperature= int(données[2][1])
-    message = mqtt.wait_for_message(client,var.broker, var.username, var.password)
-    setpoint=int(get_setpoint_from_message(message))
-    if setpoint!=temperature:
-        envoie_mqtt(temperature,client,topic_down,topic_up)
-        print("Message envoyé")
-    else:
-        print("Message non envoyé car la consigne est déjà la bonne")
-    connexion.close(client_bdd)
-    mqtt.deconnexion_mqtt(client)
+    doit_envoyer = False
+    if temperature_voulue != setpoint:
+        doit_envoyer = True
+    return doit_envoyer
+    
+def edt_par_vanne():
+    for salle in var.liste_salles:
+        url=recup.create_url(salle)
+        calcul_consigne(url)
+
+
+
+
+def abonnement_general():
+    for vanne in var.liste_vannes:
+        salle=var.liste_vannes[vanne][0]
+        topic_down,topic_up = mqtt.create_topic(vanne)
+        vanne = tv.VanneThread(vanne,salle, topic_up,topic_down)
+        var.threads.update({topic_down:vanne.salle})
+        vanne.start()
     
     
+
+
+
+
+    """
+    for vanne in var.liste_vannes:
+        salle=var.liste_vannes[vanne][1]
+        topic_down,topic_up = mqtt.create_topic(vanne)
+        mqtt.subscribe_mqtt(client, topic_down, topic_up)
+        numero_salle=var.liste_vannes[vanne][0]
+        var.liste_topics.update({topic_down: [numero_salle, topic_up]})
+        print(var.liste_topics)
+        print("Abonnement à la vanne ",vanne," de la salle ",salle) """    
 def run():
     """Fonction principale pour exécuter les tâches planifiées.
     """
-    for salle in var.liste_vannes:
-        id_salle = var.liste_vannes[salle][0]
-        liste_vanne_salle = var.liste_vannes[salle][1]
-        for vanne in liste_vanne_salle:
-            url=recup.create_url(id_salle)
-            topic_down,topic_up = mqtt.create_topic(vanne)
-            calcul_consigne(url)
-            verif_envoie_mqtt(url,topic_down,topic_up)
-            print("Message envoyé à la vanne ",vanne," de la salle ",salle)
+    edt_par_vanne()
     
-    scheduler.enter(300, 1, run)
+    scheduler.enter(60, 1, run)
+    
+if __name__ == "__main__":
+    
+    abonnement_general()
+    # Programmer la première exécution
+    scheduler.enter(0, 1, run)
 
-# Programmer la première exécution
-scheduler.enter(0, 1, run)
+    # Démarrer le planificateur
+    scheduler.run()
+    pls.start_scheduler()  # Démarrer le scheduler dans un thread séparé
 
-# Démarrer le planificateur
-scheduler.run()
+    
+
+
     
     
 
