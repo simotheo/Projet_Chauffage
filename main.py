@@ -7,7 +7,7 @@ import gestionMqtt as gm
 import variables as var
 import os
 
-"""
+
 # Variables d'environnement
 TEMPERATUREOCCUPEE = os.getenv("TEMPERATUREOCCUPEE", "var.temperature_occupee")
 TEMPERATURENONOCCUPEE = os.getenv("TEMPERATURENONOCCUPEE", "var.temperature_non_occupee")
@@ -48,7 +48,7 @@ if CLIENTID != '':
 if USERNAME != '':
     var.username = USERNAME
 if PASSWORD != '':
-    var.password = PASSWORD"""
+    var.password = PASSWORD
 
 scheduler = sched.scheduler(time.time, time.sleep) # Créer un planificateur
 
