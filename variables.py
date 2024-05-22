@@ -10,6 +10,10 @@ temperature_non_occupee=17 # température de consigne pour une salle non occupé
 temps_prechauffage=60 # temps de préchauffage en minutes
 temps_arret=20 # temps d'arrêt en minutes
 
+# Variables pour la gestion des tâches planifiées
+
+refresh=300 # temps de rafraîchissement en secondes
+
 
 # Variables pour la connexion à la base de données InfluxDB
 

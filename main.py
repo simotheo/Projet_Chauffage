@@ -57,7 +57,7 @@ def run():
     """
     gad.edt_par_vanne()
     
-    scheduler.enter(300, 1, run)
+    scheduler.enter(var.refresh, 1, run)
     
 if __name__ == "__main__":
     """Exécution du programme principal.
