@@ -152,10 +152,11 @@ def heure_fin(chemin):
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
                 # Vérifier si l'événement n'est pas déjà terminé
                 liste_fin.append(fin)
+                
     liste_fin.sort() #tri de la liste des heures de fin
     for i in range(len(liste_fin)): #parcours de la liste des heures de fin
         if liste_fin[i] > maintenant: #si l'heure de fin est supérieure à l'heure actuelle
-            if i==0: #si c'est le premier cours de la journée
+            if i==0 or (i==len(liste_fin)-1): #si c'est le premier cours de la journée
                 fin=liste_fin[i]
             else:
                 fin=liste_fin[i-1]     
