@@ -60,7 +60,6 @@ def calcul_temperature(debut,fin):
         return var.temperature_non_occupee
     
     actu  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
-    print("Actu : ",actu)
     if debut is None and actu <= fin: #si la salle n'a pas de debut d'un prochain cours mais qu'un cours doit encore finir alors la salle est occupée
         temperature = var.temperature_occupee
     elif debut is None and actu >= fin: #si la salle n'a pas de debut d'un prochain cours et que le cours est fini alors la salle est non occupée car il n'y a plus d'heures de cours
@@ -84,12 +83,7 @@ def calcul_consigne(url):
     """
     chemin=recup.make_chemin(url)
     nom_salle=recup.nom_salle(url) #recupération du nom de la salle
-    print("Nom salle : ",nom_salle)
     debut,fin=ade(url,chemin) #recupération des heures de début et de fin
-    
-    
-    print("Debut : ",debut)
-    print("Fin : ",fin)
     temperature=calcul_temperature(debut,fin) #calcul de la température
     influx.ecrire_consigne(temperature,nom_salle,debut,fin) #écriture de la consigne dans la base de données
     
