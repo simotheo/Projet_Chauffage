@@ -99,8 +99,8 @@ def heure_debut(chemin):
     liste_debut=[] #liste des heures de début
     trouver=False
     # Obtenir l'heure actuelle
-    maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
-    maintenant = maintenant + datetime.timedelta(hours=2)
+    maintenant  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
+
     # Parcourir les composants du calendrier
     for composant in cal.walk():
         if composant.name == "VEVENT" and trouver==False:
@@ -110,7 +110,7 @@ def heure_debut(chemin):
             
             # Si l'heure de début est une date avec fuseau horaire, convertir en heure locale
             if isinstance(debut, datetime.datetime):
-                debut = debut.astimezone(pytz.timezone('Europe/Paris'))
+                debut = debut.astimezone(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
                 liste_debut.append(debut)
                 
     liste_debut.sort() #tri de la liste des heures de début
@@ -139,8 +139,7 @@ def heure_fin(chemin):
     liste_fin=[] #liste des heures de fin
     trouver=False
     # Obtenir l'heure actuelle
-    maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
-    maintenant = maintenant + datetime.timedelta(hours=2)
+    maintenant  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
 
     # Parcourir les composants du calendrier
     for composant in cal.walk():
@@ -149,21 +148,20 @@ def heure_fin(chemin):
             fin = composant.get('dtend').dt
             # Si l'heure de fin est une date avec fuseau horaire, convertir en heure locale
             if isinstance(fin, datetime.datetime):
-                fin = fin.astimezone(pytz.timezone('Europe/Paris'))
+                fin = fin.astimezone(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
                 # Vérifier si l'événement n'est pas déjà terminé
                 liste_fin.append(fin)
                 
     liste_fin.sort() #tri de la liste des heures de fin
+
     for i in range(len(liste_fin)): #parcours de la liste des heures de fin
-        if liste_fin[i] > maintenant: #si l'heure de fin est supérieure à l'heure actuelle
-            if i==0 or (i==len(liste_fin)-1): #si c'est le premier cours de la journée
-                fin=liste_fin[i]
-            else:
-                fin=liste_fin[i-1]     
+        if liste_fin[i] > maintenant: #si l'heure de fin est supérieure à l'heure actuelle        
+            fin=liste_fin[i]    
             trouver=True
             break
     if trouver==False: #si on ne trouve pas de prochain cours
         fin=None
+    print(fin)
     return fin
 
 def make_chemin(url):
