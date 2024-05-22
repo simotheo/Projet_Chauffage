@@ -33,9 +33,9 @@ def ade(url,chemin):
     recup.recuperation(url, chemin)
     debut = recup.heure_debut(chemin) 
     fin = recup.heure_fin(chemin)
-    if debut is None and fin is None:
+    if debut is None and fin is None: #si la salle n'est pas occupée
         return None, None
-    elif debut is None and fin is not None:
+    elif debut is None and fin is not None: #si on trouve une fin qui doit arriver mais qu'il n'y a plus de début de prochain cours, c'est que la salle est occupée. S'il y a une fin c'est qu'il y a un début
         fin= calcul_heure(fin,var.temps_arret)
         return None, fin
     elif debut is not None and fin is None:
@@ -56,17 +56,17 @@ def calcul_temperature(debut,fin):
     Returns:
         int: Température à appliquer
     """
-    if debut is None and fin is None:
+    if debut is None and fin is None: #si la salle n'est pas occupée pour le reste de la journée 
         return var.temperature_non_occupee
     
     actu  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
-    if debut is None and actu <= fin:
+    if debut is None and actu <= fin: #si la salle n'a pas de debut d'un prochain cours mais qu'un cours doit encore finir alors la salle est occupée
         temperature = var.temperature_occupee
-    elif debut is None and actu >= fin:
+    elif debut is None and actu >= fin: #si la salle n'a pas de debut d'un prochain cours et que le cours est fini alors la salle est non occupée car il n'y a plus d'heures de cours
         temperature = var.temperature_non_occupee
-    elif (actu >= debut and actu <= fin):
+    elif (actu >= debut and actu <= fin): #si l'heure actuelle est comprise entre le début et la fin du cours alors la salle est occupée
         temperature = var.temperature_occupee
-    elif debut >= fin and actu <= fin:
+    elif debut >= fin and actu <= fin: #si l'heure actuelle est inférieur à la fin du cours alors la salle est occupée  meme si le debut du prochain cours est après la fin du cours actuel
         temperature = var.temperature_occupee
     else:
         temperature = var.temperature_non_occupee

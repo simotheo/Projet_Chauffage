@@ -6,9 +6,6 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import datetime
 
 
-
-
-
 def writeData(client, bucket,org,salle,temperature,debut,fin):
     """Ecrit les données dans la base de donnée InfluxDB
 
@@ -26,6 +23,16 @@ def writeData(client, bucket,org,salle,temperature,debut,fin):
     write_api.write(bucket=bucket, org=org, record=data)
     
 def writeSetpoint(client,bucket,org,vanne,setpoint,salle):
+    """Ecrit le setpoint dans la base de donnée InfluxDB
+
+    Args:
+        client (client): client InfluxDB
+        bucket (str): nom du bucket
+        org (str): organisation
+        vanne (str): nom de la vanne
+        setpoint (int): setpoint à appliquer
+        salle (str): nom de la salle
+    """
     write_api = client.write_api(write_options=SYNCHRONOUS)
     data = influxdb_client.Point(vanne).tag(key="Admin",value="Maxime").field(field="temperature", value=setpoint).field(field="salle", value=salle).time(time=datetime.datetime.utcnow())
     write_api.write(bucket=bucket, org=org, record=data)

@@ -7,6 +7,8 @@ import gestionMqtt as gm
 import variables as var
 import os
 
+
+# Variables d'environnement
 TEMPERATUREOCCUPEE = os.getenv("TEMPERATUREOCCUPEE", "var.temperature_occupee")
 TEMPERATURENONOCCUPEE = os.getenv("TEMPERATURENONOCCUPEE", "var.temperature_non_occupee")
 TEMPSPRECHAUFFAGE = os.getenv("TEMPSPRECHAUFFAGE", "var.temps_prechauffage")
@@ -48,7 +50,7 @@ if USERNAME != '':
 if PASSWORD != '':
     var.password = PASSWORD
 
-scheduler = sched.scheduler(time.time, time.sleep)
+scheduler = sched.scheduler(time.time, time.sleep) # Créer un planificateur
 
 def run():
     """Fonction principale pour exécuter les tâches planifiées.
@@ -61,7 +63,7 @@ if __name__ == "__main__":
     """Exécution du programme principal.
     """
     
-    gm.abonnement_general()
+    gm.abonnement_general() # Abonnement à tous les topics
     # Programmer la première exécution
     scheduler.enter(0, 1, run)
 

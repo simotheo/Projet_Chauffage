@@ -4,7 +4,7 @@ threads={} # dictionnaire des threads, se remplira automatiquement
 
 # Variables pour la gestion des vannes
 
-liste_vannes={"simu-vanne-01": [5465,"8D-001"], "simu-vanne-02":[5009,"8C-038"], "simu-vanne-03":[2696,"8C-149"]} # liste des vannes à gérer avec le numéro et le nom de la salle , "simu-vanne-02": [5009,"8C-38"], "simu-vanne-03": [5037,"4A-65"]
+liste_vannes={"simu-vanne-01": [5465,"8D-001"], "simu-vanne-02":[5009,"8C-038"], "simu-vanne-03":[2696,"8C-149"]} # liste des vannes à gérer avec le numéro et le nom de la salle
 temperature_occupee=20 # température de consigne pour une salle occupée
 temperature_non_occupee=17 # température de consigne pour une salle non occupée
 temps_prechauffage=60 # temps de préchauffage en minutes

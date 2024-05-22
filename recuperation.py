@@ -96,7 +96,7 @@ def heure_debut(chemin):
         cal = Calendar.from_ical(f.read())
         
     debut=None
-    liste_debut=[]
+    liste_debut=[] #liste des heures de début
     trouver=False
     # Obtenir l'heure actuelle
     maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
@@ -112,14 +112,14 @@ def heure_debut(chemin):
             if isinstance(debut, datetime.datetime):
                 debut = debut.astimezone(pytz.timezone('Europe/Paris'))
                 liste_debut.append(debut)
-                # Vérifier si l'événement n'est pas déjà passé
-    liste_debut.sort()
-    for i in liste_debut:
-        if i > maintenant:
-            debut=i
+                
+    liste_debut.sort() #tri de la liste des heures de début
+    for i in liste_debut: #parcours de la liste des heures de début
+        if i > maintenant: #si l'heure de début est supérieure à l'heure actuelle
+            debut=i #on récupère l'heure de début du prochain cours
             trouver=True
             break
-    if trouver==False:
+    if trouver==False: #si on ne trouve pas de prochain cours
         debut=None
     return debut
 
@@ -136,7 +136,7 @@ def heure_fin(chemin):
         cal = Calendar.from_ical(f.read())
 
     fin=None
-    liste_fin=[]
+    liste_fin=[] #liste des heures de fin
     trouver=False
     # Obtenir l'heure actuelle
     maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
@@ -152,17 +152,17 @@ def heure_fin(chemin):
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
                 # Vérifier si l'événement n'est pas déjà terminé
                 liste_fin.append(fin)
-    liste_fin.sort()
-    for i in range(len(liste_fin)):
-        if liste_fin[i] > maintenant:
-            if i==0:
+    liste_fin.sort() #tri de la liste des heures de fin
+    for i in range(len(liste_fin)): #parcours de la liste des heures de fin
+        if liste_fin[i] > maintenant: #si l'heure de fin est supérieure à l'heure actuelle
+            if i==0: #si c'est le premier cours de la journée
                 fin=liste_fin[i]
             else:
                 fin=liste_fin[i-1]     
             trouver=True
             break
-    liste_fin.sort()
-
+    if trouver==False: #si on ne trouve pas de prochain cours
+        fin=None
     return fin
 
 def make_chemin(url):
