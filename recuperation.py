@@ -3,9 +3,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 from icalendar import Calendar, Event
-from datetime import datetime
+import datetime 
 import pytz
-
 
 #Création url
 def create_url(num):
@@ -17,6 +16,11 @@ def create_url(num):
     Returns:
         str: URL de l'emploi du temps ADE de la salle spécifiée.
     """
+    # Obtenir la date actuelle
+    date_actuelle = datetime.datetime.now()
+
+    # Formater la date actuelle pour l'incorporer dans l'URL
+    date_formatee = date_actuelle.strftime("%Y-%m-%d")
     return "https://ade-usmb-ro.grenet.fr/jsp/custom/modules/plannings/direct_cal.jsp?data=b5cfb898a9c27be94975c12c6eb30e9233bdfae22c1b52e2cd88eb944acf5364c69e3e5921f4a6ebe36e93ea9658a08f,1&resources="+str(num)+"&projectId=1&calType=ical&lastDate="+date_formatee
 
 def nom_salle(url):
@@ -80,52 +84,71 @@ def recuperation(url, chemin):
         return False
     
 def heure_debut(chemin):
-    """Récupère l'heure de début de l'événement dans le fichier ICS.
+    """Récupère l'heure de début du premier événement futur dans le fichier ICS.
 
     Args:
         chemin (str): Le chemin du fichier ICS à analyser.
 
     Returns:
-        datetime: L'heure de début du premier événement.
+        datetime: L'heure de début du premier événement futur.
     """
     with open(chemin, 'rb') as f:
         cal = Calendar.from_ical(f.read())
-
+        
+    debut=None
+    trouver=False
+    # Obtenir l'heure actuelle
+    maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
+    maintenant = maintenant + datetime.timedelta(hours=2)
     # Parcourir les composants du calendrier
     for composant in cal.walk():
-        if composant.name == "VEVENT":
+        if composant.name == "VEVENT" and trouver==False:
+            
             # Récupérer l'heure de début de l'événement
             debut = composant.get('dtstart').dt
+            
             # Si l'heure de début est une date avec fuseau horaire, convertir en heure locale
-            if isinstance(debut, datetime):
-                # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
+            if isinstance(debut, datetime.datetime):
                 debut = debut.astimezone(pytz.timezone('Europe/Paris'))
-            break
-    else: debut=None
+                # Vérifier si l'événement n'est pas déjà passé
+                if debut > maintenant:
+                    trouver=True
+
+    if trouver==False:
+        debut=None
     return debut
 
 def heure_fin(chemin):
-    """Recupère l'heure de fin de l'événement dans le fichier ICS.
+    """Récupère l'heure de fin du premier événement futur dans le fichier ICS.
 
     Args:
         chemin (str): Le chemin du fichier ICS à analyser.
 
     Returns:
-        datetime: L'heure de fin du premier événement.
+        datetime: L'heure de fin du premier événement futur.
     """
-    fin = None
     with open(chemin, 'rb') as f:
         cal = Calendar.from_ical(f.read())
 
+    fin=None
+    trouver=False
+    # Obtenir l'heure actuelle
+    maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
+    maintenant = maintenant + datetime.timedelta(hours=2)
+
     # Parcourir les composants du calendrier
     for composant in cal.walk():
-        if composant.name == "VEVENT":
+        if composant.name == "VEVENT" and trouver==False:
             # Récupérer l'heure de fin de l'événement
             fin = composant.get('dtend').dt
             # Si l'heure de fin est une date avec fuseau horaire, convertir en heure locale
-            if isinstance(fin, datetime):
-                # Remplacer 'Europe/Paris' par votre fuseau horaire si nécessaire
+            if isinstance(fin, datetime.datetime):
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
+                # Vérifier si l'événement n'est pas déjà terminé
+                if fin > maintenant:
+                    trouver=True
+    if trouver==False:
+        fin=None
     return fin
 
 def make_chemin(url):
@@ -139,10 +162,6 @@ def make_chemin(url):
     """
     return nom_salle(url)+".ics"
 
-# Obtenir la date actuelle
-date_actuelle = datetime.now()
 
-# Formater la date actuelle pour l'incorporer dans l'URL
-date_formatee = date_actuelle.strftime("%Y-%m-%d")
 
 

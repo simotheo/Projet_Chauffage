@@ -1,40 +1,10 @@
 import time
 from paho.mqtt import client as mqtt
 import variables as var
-import main as m
-
-
-def create_topic(device_id):
-    """Crée les topics MQTT pour un appareil donné
-
-    Args:
-        device_id (str): Identifiant de l'appareil
-
-    Returns:
-        tuple: Topic pour envoyer un message, topic pour recevoir un message
-    """
-    return f"v3/usmb-project@ttn/devices/{device_id}/down/replace", f"v3/usmb-project@ttn/devices/{device_id}/up"
-
-def on_connect(client, userdata, flags, rc):
-    """Fonction de rappel appelée lors de la connexion au broker MQTT
-
-    Args:
-        client (mqtt.Client): Objet client de connexion
-        userdata (dict): Données utilisateur
-        flags (dict): Drapeaux de connexion
-        rc (int): Code de retour de connexion
-    """
-    if rc == 0:
-        client.connected_flag = True
-        print("Connecté avec le code ", rc)
-    else:
-        print("Echec de la connexion avec le code", rc)
-        
+import gestionMqtt as gm
+  
 def connexion_mqtt():
     """Connexion à un broker MQTT
-
-    Args:
-        topic (str): Topic auquel s'abonner
 
     Returns:
         mqtt.Client: Objet client de connexion
@@ -54,31 +24,20 @@ def connexion_mqtt():
     return client
 
 
-
-
-    
-def subscribe_mqtt(client, topic_down, topic_up):
-    """Souscrit à des topics MQTT
+def on_connect(client, userdata, flags, rc):
+    """Fonction de rappel appelée lors de la connexion au broker MQTT
 
     Args:
         client (mqtt.Client): Objet client de connexion
-        topic_down (str): Topic auquel s'abonner pour recevoir des messages
-        topic_up (str): Topic auquel s'abonner pour envoyer des messages
-
-    Returns:
-        bool: True si l'abonnement a réussi, False sinon
+        userdata (dict): Données utilisateur
+        flags (dict): Drapeaux de connexion
+        rc (int): Code de retour de connexion
     """
-    # Tentative d'abonnement aux topics MQTT
-    result_down, _ = client.subscribe(topic_down)
-    result_up, _ = client.subscribe(topic_up)
-
-    # Vérification si l'abonnement a réussi
-    if result_down == mqtt.MQTT_ERR_SUCCESS and result_up == mqtt.MQTT_ERR_SUCCESS:
-        print("Abonnement aux topics réussi")
-        return True
+    if rc == 0:
+        client.connected_flag = True
+        print("Connecté avec le code ", rc)
     else:
-        print("Échec de l'abonnement aux topics")
-        return False
+        print("Echec de la connexion avec le code", rc)
 
 
 
@@ -93,7 +52,7 @@ def on_message(client, userdata, msg):
     global received_message
     print("Message reçu sur le topic " + msg.topic + " avec le payload " + str(msg.payload))
     received_message = msg.payload.decode()
-    m.envoie_mqtt(client,userdata['topic_down'],m.get_setpoint_from_message(received_message))
+    gm.envoie_mqtt(client,userdata['topic_down'],gm.get_setpoint_from_message(received_message))
     
 
 def deconnexion_mqtt(client):
