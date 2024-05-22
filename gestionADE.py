@@ -60,6 +60,7 @@ def calcul_temperature(debut,fin):
         return var.temperature_non_occupee
     
     actu  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
+    print("Actu : ",actu)
     if debut is None and actu <= fin: #si la salle n'a pas de debut d'un prochain cours mais qu'un cours doit encore finir alors la salle est occupée
         temperature = var.temperature_occupee
     elif debut is None and actu >= fin: #si la salle n'a pas de debut d'un prochain cours et que le cours est fini alors la salle est non occupée car il n'y a plus d'heures de cours
@@ -67,6 +68,8 @@ def calcul_temperature(debut,fin):
     elif (actu >= debut and actu <= fin): #si l'heure actuelle est comprise entre le début et la fin du cours alors la salle est occupée
         temperature = var.temperature_occupee
     elif debut >= fin and actu <= fin: #si l'heure actuelle est inférieur à la fin du cours alors la salle est occupée  meme si le debut du prochain cours est après la fin du cours actuel
+        temperature = var.temperature_occupee
+    elif debut <= fin and debut >= actu and actu <= fin: #la date actuelle est inférieure à celle du début du prochain cours mais inférieur à la fin du cours actuel alors la salle est occupée
         temperature = var.temperature_occupee
     else:
         temperature = var.temperature_non_occupee
