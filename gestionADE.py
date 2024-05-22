@@ -33,8 +33,6 @@ def ade(url,chemin):
     recup.recuperation(url, chemin)
     debut = recup.heure_debut(chemin) 
     fin = recup.heure_fin(chemin)
-    print("Debut : ",debut)
-    print("Fin : ",fin)
     if debut is None and fin is None:
         return None, None
     elif debut is None and fin is not None:
@@ -62,7 +60,6 @@ def calcul_temperature(debut,fin):
         return var.temperature_non_occupee
     
     actu  = datetime.datetime.now(pytz.timezone('Europe/Paris')).replace(second=0, microsecond=0)
-    actu = actu + datetime.timedelta(hours=2)
     if debut is None and actu <= fin:
         temperature = var.temperature_occupee
     elif debut is None and actu >= fin:

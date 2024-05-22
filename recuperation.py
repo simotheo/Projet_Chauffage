@@ -96,6 +96,7 @@ def heure_debut(chemin):
         cal = Calendar.from_ical(f.read())
         
     debut=None
+    liste_debut=[]
     trouver=False
     # Obtenir l'heure actuelle
     maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
@@ -110,10 +111,14 @@ def heure_debut(chemin):
             # Si l'heure de début est une date avec fuseau horaire, convertir en heure locale
             if isinstance(debut, datetime.datetime):
                 debut = debut.astimezone(pytz.timezone('Europe/Paris'))
+                liste_debut.append(debut)
                 # Vérifier si l'événement n'est pas déjà passé
-                if debut > maintenant:
-                    trouver=True
-
+    liste_debut.sort()
+    for i in liste_debut:
+        if i > maintenant:
+            debut=i
+            trouver=True
+            break
     if trouver==False:
         debut=None
     return debut
@@ -131,6 +136,7 @@ def heure_fin(chemin):
         cal = Calendar.from_ical(f.read())
 
     fin=None
+    liste_fin=[]
     trouver=False
     # Obtenir l'heure actuelle
     maintenant  = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
@@ -145,10 +151,18 @@ def heure_fin(chemin):
             if isinstance(fin, datetime.datetime):
                 fin = fin.astimezone(pytz.timezone('Europe/Paris'))
                 # Vérifier si l'événement n'est pas déjà terminé
-                if fin > maintenant:
-                    trouver=True
-    if trouver==False:
-        fin=None
+                liste_fin.append(fin)
+    liste_fin.sort()
+    for i in range(len(liste_fin)):
+        if liste_fin[i] > maintenant:
+            if i==0:
+                fin=liste_fin[i]
+            else:
+                fin=liste_fin[i-1]     
+            trouver=True
+            break
+    liste_fin.sort()
+
     return fin
 
 def make_chemin(url):
